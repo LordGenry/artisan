@@ -1,3 +1,4 @@
-__version__ = '0.9.9'
-#__revision__ = ''.join(list(filter(str.isdigit, "$Revision$")))
+
+__version__ = '1.6.0'
 __revision__ = '0'
+__build__ = '0'

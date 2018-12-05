@@ -73,9 +73,9 @@ RequestExecutionLevel admin
 ; HM NIS Edit Wizard helper defines
 !define py2exeOutputDir 'dist'
 !define PRODUCT_NAME "Artisan"
-!define PRODUCT_VERSION "0.9.9.0"
+!define PRODUCT_VERSION "1.6.0.0"
 !define PRODUCT_PUBLISHER "The Artisan Team"
-!define PRODUCT_WEB_SITE "http://code.google.com/p/artisan/"
+!define PRODUCT_WEB_SITE "https://github.com/artisan-roaster-scope/artisan/blob/master/README.md"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\artisan.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -130,17 +130,62 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 Function .onInit
-
+ 
   ReadRegStr $R0 ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" \
   "UninstallString"
-  StrCmp $R0 "" done
-
-  MessageBox MB_OK "${PRODUCT_NAME} is already installed. You need to uninstall the old version first before installing this new version."
+  StrCmp $R0 "" done  
+ 
+  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+  "${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the \
+  previous version or `Cancel` to cancel this upgrade." /SD IDOK \
+  IDOK uninst
   Abort
-
+ 
+;Run the uninstaller
+uninst:
+  ClearErrors
+  IfSilent mysilent nosilent
+    
+mysilent:
+  ExecWait '$R0 /S _?=$INSTDIR' ;Do not copy the uninstaller to a temp file
+  IfErrors no_remove_uninstaller done
+  
+nosilent:
+  ExecWait '$R0 _?=$INSTDIR' ;Do not copy the uninstaller to a temp file 
+  IfErrors no_remove_uninstaller done
+    
+no_remove_uninstaller:
+    ;You can either use Delete /REBOOTOK in the uninstaller or add some code
+    ;here to remove the uninstaller. Use a registry key to check
+    ;whether the user has chosen to uninstall. If you are using an uninstaller
+    ;components page, make sure all sections are uninstalled.
+  
 done:
-
+ 
 FunctionEnd
+
+
+Function CheckRedistributableInstalled
+
+  ;{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5} - msvs2010 sp1
+  
+  Push $R0
+  ClearErrors
+   
+  ;try to read Version subkey to R0
+  ReadRegDword $R0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}" "Version"
+
+  ;was there error or not?
+  IfErrors 0 NoErrors
+   
+  ;error occured, copy "Error" to R0
+  StrCpy $R0 "Error"
+
+  NoErrors:
+  
+    Exch $R0 
+FunctionEnd
+
 
 Section "MainSection" SEC01
   SetShellVarContext all
@@ -188,8 +233,15 @@ SectionEnd
 ;  end:
 ;SectionEnd
 
-Section "Microsoft Visual C++ 2008 Redistributable Package (x86)" SEC02
-ExecWait '$INSTDIR\vcredist_x86.exe /q:a /c:"VCREDI~3.EXE /q:a /c:""msiexec /i vcredist.msi /qn"" "'
+Section "Microsoft Visual C++ 2010 Redistributable Package (x86)" SEC02
+
+Call  CheckRedistributableInstalled
+Pop $R0
+
+${If} $R0 == "Error"
+  ExecWait '$INSTDIR\vcredist_x86.exe /q:a /c:"VCREDI~3.EXE /q:a /c:""msiexec /i vcredist.msi /qn"" "'	
+${EndIf}
+
 SectionEnd
 
 Section -AdditionalIcons
@@ -220,6 +272,9 @@ Section -Post
   !insertmacro APP_ASSOCIATE "apal" "Artisan.Palettes" "Artisan Palettes" \
      "$INSTDIR\artisanPalettes.ico" "Open with Artisan" "$INSTDIR\artisan.exe $\"%1$\""
      
+  !insertmacro APP_ASSOCIATE "aset" "Artisan.Theme" "Artisan Theme" \
+     "$INSTDIR\artisanTheme.ico" "Open with Artisan" "$INSTDIR\artisan.exe $\"%1$\""
+     
   !insertmacro APP_ASSOCIATE "aset" "Artisan.Settings" "Artisan Settings" \
      "$INSTDIR\artisanSettings.ico" "Open with Artisan" "$INSTDIR\artisan.exe $\"%1$\""
      
@@ -231,12 +286,17 @@ SectionEnd
 
 Function un.onUninstSuccess
   HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
+  IfSilent +2 0
+    MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer." /SD IDOK
 FunctionEnd
 
 Function un.onInit
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
-  Abort
+
+    IfSilent +3 
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_TOPMOST "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2 
+        Abort 
+    HideWindow   
+
 FunctionEnd
 
 Section Uninstall
@@ -251,6 +311,7 @@ Section Uninstall
   Delete "$INSTDIR\artisanAlarms.ico"
   Delete "$INSTDIR\artisanProfile.ico"
   Delete "$INSTDIR\artisanPalettes.ico"
+  Delete "$INSTDIR\artisanTheme.ico"
   Delete "$INSTDIR\artisanWheel.ico"
   Delete "$INSTDIR\artisanSettings.ico"
   Delete "$INSTDIR\Humor-Sans.ttf"
@@ -260,6 +321,10 @@ Section Uninstall
   Delete "$INSTDIR\alarmclock.woff"
   Delete "$INSTDIR\artisan.tpl"
   Delete "$INSTDIR\bigtext.js"
+  Delete "$INSTDIR\sorttable.js"
+  Delete "$INSTDIR\report-template.htm"
+  Delete "$INSTDIR\roast-template.htm"
+  Delete "$INSTDIR\ranking-template.htm"
   Delete "$INSTDIR\jquery-1.11.1.min.js"
   Delete "$INSTDIR\qt.conf"
   Delete "$INSTDIR\vcredist_x86.exe"
@@ -290,6 +355,7 @@ Section Uninstall
   !insertmacro APP_UNASSOCIATE "alrm" "Artisan.Alarms"
   !insertmacro APP_UNASSOCIATE "apal" "Artisan.Palettes"
   !insertmacro APP_UNASSOCIATE "aset" "Artisan.Settings"
+  !insertmacro APP_UNASSOCIATE "aset" "Artisan.Theme"
   !insertmacro APP_UNASSOCIATE "wg" "Artisan.Wheel"
   
   SetAutoClose true

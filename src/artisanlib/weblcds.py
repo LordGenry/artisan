@@ -18,6 +18,7 @@ from requests import get as rget
 
 import time as libtime
 
+
 wsocks = [] # list of open web sockets
 process = None
 port = None
@@ -52,39 +53,39 @@ def work(p,rp,nonesym,timec,timebg,btc,btbg,etc,etbg,showetflag,showbtflag):
         
 def startWeb(p,resourcePath,nonesym,timec,timebg,btc,btbg,etc,etbg,showetflag,showbtflag):
     global port, process, static_path, nonesymbol, timecolor, timebackground, btcolor, btbackground, etcolor, etbackground, showet, showbt
-    try:
-        port = p
-        static_path = resourcePath
-        nonesymbol = nonesym
-        timecolor = timec
-        timebackground = timebg
-        btcolor = btc
-        btbackground = btbg
-        etcolor = etc
-        etbackground = etbg
-        showet = showetflag
-        showbt = showbtflag
-        if psystem() != 'Windows':
-            gsignal(SIGQUIT, kill)
-        
-        # start the server in a separate process
-# using multiprocessing
-        process = mProcess(target=work,args=(
-            port,
-            resourcePath,
-            nonesym,
-            timec,
-            timebg,
-            btc,
-            btbg,
-            etc,
-            etbg,
-            showetflag,
-            showbtflag,))
-        process.start()
-       
-        libtime.sleep(4)
-        
+    port = p
+    static_path = resourcePath
+    nonesymbol = nonesym
+    timecolor = timec
+    timebackground = timebg
+    btcolor = btc
+    btbackground = btbg
+    etcolor = etc
+    etbackground = etbg
+    showet = showetflag
+    showbt = showbtflag
+    if psystem() != 'Windows':
+        gsignal(SIGQUIT, kill)
+    
+    # start the server in a separate process
+    # using multiprocessing
+    process = mProcess(name='WebLCDs',target=work,args=(
+        port,
+        resourcePath,
+        nonesym,
+        timec,
+        timebg,
+        btc,
+        btbg,
+        etc,
+        etbg,
+        showetflag,
+        showbtflag,))
+    process.start()
+    
+    libtime.sleep(4)
+    
+    if process.is_alive():    
         # check successful start
         url = "http://127.0.0.1:" + str(port) + "/status"
         r = rget(url,timeout=2)
@@ -93,11 +94,7 @@ def startWeb(p,resourcePath,nonesym,timec,timebg,btc,btbg,etc,etbg,showetflag,sh
             return True
         else:
             return False
-
-    except Exception:
-#        import traceback
-#        import sys
-#        traceback.print_exc(file=sys.stdout)
+    else:
         return False
     
 def stopWeb():

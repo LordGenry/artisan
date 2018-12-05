@@ -5,8 +5,6 @@ from ctypes import c_bool, c_double
 import serial
 
 import time
-import sys
-import binascii
 
 process = None
 control = False # Hottop under control?
@@ -15,7 +13,8 @@ control = False # Hottop under control?
 SP = None
 
 # safety cut-off BT temperature
-BTcutoff = 220 # 220C = 428F
+BTcutoff = 220 # 220C = 428F (was 212C/413F before)
+BTleaveControl = 180 # 180C = 350F; the BT below which the control can be released; above the control cannot be released to avoid sudden stop at high temperatures
 
 xCONTROL = None # False: just logging; True: logging+control
 xBT = None
@@ -35,15 +34,11 @@ xSET_SOLENOID = None # False: closed; True: open
 xSET_DRUM_MOTOR = None
 xSET_COOLING_MOTOR = None
 
-if sys.version < '3':
-    def hex2int(h1,h2=""):
-        return int(binascii.hexlify(h1+h2),16)
-else:
-    def hex2int(h1,h2=None):
-        if h2:
-            return int(h1*256 + h2)
-        else:
-            return int(h1)
+def hex2int(h1,h2=None):
+    if h2:
+        return int(h1*256 + h2)
+    else:
+        return int(h1)
         
 def openport(p):
     try:
@@ -90,7 +85,7 @@ def gettemperatures(p,retry=True):
                     if retry: # we retry once
                         return gettemperatures(p,retry=False)
                 else:
-                    #VERSION = hex2int(r[4])
+                    #VERSION = hex2int(r[4]) # => 1 (first released version)
                     HEATER = hex2int(r[10]) # 0-100
                     FAN = hex2int(r[11])
                     MAIN_FAN = hex2int(r[12]) # 0-10
@@ -109,12 +104,20 @@ def doWork(interval, comport, baudrate, bytesize, parity, stopbits, timeout,
         aSET_HEATER, aSET_FAN, aSET_MAIN_FAN, aSET_SOLENOID, aSET_DRUM_MOTOR, aSET_COOLING_MOTOR, aCONTROL):
     SP = serial.Serial()
     # configure serial port
-    SP.setPort(comport)
-    SP.setBaudrate(baudrate)
-    SP.setByteSize(bytesize)
-    SP.setParity(parity)
-    SP.setStopbits(stopbits)
-    SP.setTimeout(timeout)
+    if serial.VERSION.split(".")[0].strip() == "2":
+        SP.setPort(comport)
+        SP.setBaudrate(baudrate)
+        SP.setByteSize(bytesize)
+        SP.setParity(parity)
+        SP.setStopbits(stopbits)
+        SP.setTimeout(timeout)
+    else:
+        SP.port = comport
+        SP.baudrate = baudrate
+        SP.bytesize = bytesize
+        SP.parity = parity
+        SP.stopbits = stopbits
+        SP.timeout = timeout    
     while True:
         # logging part
         BT, ET, HEATER, FAN, MAIN_FAN, SOLENOID, DRUM_MOTOR, COOLING_MOTOR, CHAFF_TRAY = gettemperatures(SP)
@@ -147,7 +150,7 @@ def doWork(interval, comport, baudrate, bytesize, parity, stopbits, timeout,
 
         # control part
         if aCONTROL.value:
-            # safety cut at BT=212C (413F)
+            # safety cut at BT=220C/428F (was 212C/413F before)
             if BT >= BTcutoff:
                 # set main fan to maximum (set to 10), turn off heater (set to 0), open solenoid for eject, turn on drum and stirrer (all set to 1)
                 aSET_HEATER.value = 0
@@ -222,7 +225,7 @@ def takeHottopControl():
         return False
     
 def releaseHottopControl():
-    if xCONTROL and xBT.value < BTcutoff:
+    if xCONTROL and xBT.value < BTleaveControl:
         xCONTROL.value = False
         return True
     else:
@@ -260,7 +263,7 @@ def setHottop(heater=None,fan=None,main_fan=None,solenoid=None,drum_motor=None,c
 
 
 # interval has to be smaller than 1 (= 1sec)
-def startHottop(interval=1,comport="COM4",baudrate=115200,bytesize=8,parity='N',stopbits=1,timeout=1):
+def startHottop(interval=1,comport="COM4",baudrate=115200,bytesize=8,parity='N',stopbits=1,timeout=0.5):
     global process, xCONTROL, xBT, xET, xHEATER, xFAN, xMAIN_FAN, xSOLENOID, xDRUM_MOTOR, xCOOLING_MOTOR, xCHAFF_TRAY, \
         xSET_HEATER, xSET_FAN, xSET_MAIN_FAN, xSET_SOLENOID, xSET_DRUM_MOTOR, xSET_COOLING_MOTOR
     try:

@@ -14,7 +14,11 @@
 
 SOURCES = \
     artisanlib/main.py \
-    const/UIconst.py
+    const/UIconst.py \
+#    plus/login.py \
+#    plus/controller.py \
+#    plus/stock.py \
+#    plus/sync.py \
     
 TRANSLATIONS = \
 	translations/artisan_de.ts \
@@ -36,4 +40,6 @@ TRANSLATIONS = \
 	translations/artisan_ja.ts \
 	translations/artisan_hu.ts \
 	translations/artisan_he.ts \
-	translations/artisan_pl.ts 
+	translations/artisan_pl.ts \
+	translations/artisan_id.ts \
+	translations/artisan_th.ts 

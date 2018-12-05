@@ -1,63 +1,121 @@
 #!/bin/sh
 
-VERSION=$(python -c 'import artisanlib; print(artisanlib.__version__)')
-NAME=artisan-linux-${VERSION}
-RPM_NAME=artisan-${VERSION}
+set -ex
 
-# fix debian/DEBIAN/control _VERSION_
-sed -i "s/_VERSION_/${VERSION}/g" debian/DEBIAN/control
+export LD_LIBRARY_PATH=$LD_LIBTRARY_PATH:/usr/local/lib
+export PATH=$PATH:$HOME/.local/bin
 
+if [ ! -z $TRAVIS ]; then
+    # Travis environment
+    export PYTHON_PATH=/home/travis/virtualenv/python3.6/lib/python3.6/site-packages
+    export QT_PATH=$PYTHON_PATH/PyQt5/Qt
+elif [ -d /usr/lib/python3/dist-packages/PyQt5 ]; then
+    # ARM builds
+    export PYTHON_PATH=`python3 -m site --user-site`
+    export QT_PATH=/usr/share/qt5
+else
+    # Other builds
+    export PYTHON_PATH=`python3 -m site --user-site`
+    export QT_PATH=$PYTHON_PATH/PyQt5/Qt
+fi
 
-# prepare debian directory
+rm -rf build
+rm -rf dist
 
-gzip -9 debian/usr/share/man/man1/artisan.1
-gzip -9 debian/usr/share/doc/artisan/changelog
+rm -f libusb-1.0.so.0
+if [ -f /lib/x86_64-linux-gnu/libusb-1.0.so.0 ]; then
+    ln -s /lib/x86_64-linux-gnu/libusb-1.0.so.0
+elif [ -f /lib/arm-linux-gnueabihf/libusb-1.0.so.0 ]; then
+    ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0
+else
+    ln -s /usr/lib/libusb-1.0.so.0
+fi
 
+pyinstaller -D -n artisan -y -c --hidden-import scipy._lib.messagestream \
+	    --log-level=INFO artisan-linux.spec
 
-# build CentOS i386 .rpm
+mv dist/artisan dist/artisan.d
+mv dist/artisan.d/* dist
+rm -rf dist/artisan.d
 
-rm -rf debian/usr/share/artisan
-tar -xf dist-centos.tar -C debian/usr/share
-mv debian/usr/share/dist debian/usr/share/artisan
-find debian -name .svn -exec rm -rf {} \; > /dev/null 2>&1
-chown -R root:root debian
-chmod -R go-w debian
-chmod 0644 debian/usr/share/artisan/*.so*
-rm ${NAME}_i386.deb
-fakeroot dpkg --build debian ${NAME}_i386.deb
-alien -r ${NAME}_i386.deb
-mv ${RPM_NAME}-2.i386.rpm ${NAME}_i386.rpm
+# copy translations
+mkdir dist/translations
+cp $QT_PATH/translations/qt_ar.qm dist/translations
+cp $QT_PATH/translations/qt_de.qm dist/translations
+cp $QT_PATH/translations/qt_es.qm dist/translations
+cp $QT_PATH/translations/qt_fi.qm dist/translations
+cp $QT_PATH/translations/qt_fr.qm dist/translations
+cp $QT_PATH/translations/qt_he.qm dist/translations
+cp $QT_PATH/translations/qt_hu.qm dist/translations
+cp $QT_PATH/translations/qt_it.qm dist/translations
+cp $QT_PATH/translations/qt_ja.qm dist/translations
+cp $QT_PATH/translations/qt_ko.qm dist/translations
+cp $QT_PATH/translations/qt_pl.qm dist/translations
+cp $QT_PATH/translations/qt_pt.qm dist/translations
+cp $QT_PATH/translations/qt_ru.qm dist/translations
+cp $QT_PATH/translations/qt_sv.qm dist/translations
+cp $QT_PATH/translations/qt_zh_CN.qm dist/translations
+cp $QT_PATH/translations/qt_zh_TW.qm dist/translations
+cp translations/*.qm dist/translations
 
-# build Ubuntu .deb
+# copy data
+cp -R $PYTHON_PATH/matplotlib/mpl-data dist
+rm -rf dist/mpl-data/sample_data
 
-rm -rf debian/usr/share/artisan
-tar -xf dist-ubuntu.tar -C debian/usr/share
-mv debian/usr/share/dist debian/usr/share/artisan
-find debian -name .svn -exec rm -rf {} \; > /dev/null 2>&1
-chown -R root:root debian
-chmod -R go-w debian
-chmod 0644 debian/usr/share/artisan/*.so*
-rm ${NAME}_i386-glibc2.4.deb
-fakeroot dpkg --build debian ${NAME}_i386-glibc2.4.deb
+# copy file icon and other includes
+cp artisan-alog.xml dist
+cp artisan-alrm.xml dist
+cp artisan-apal.xml dist
+cp artisan-athm.xml dist
+cp artisan-aset.xml dist
+cp artisan-wg.xml dist
+cp includes/Humor-Sans.ttf dist
+cp includes/alarmclock.eot dist
+cp includes/alarmclock.svg dist
+cp includes/alarmclock.ttf dist
+cp includes/alarmclock.woff dist
+cp includes/artisan.tpl dist
+cp includes/bigtext.js dist
+cp includes/sorttable.js dist
+cp includes/report-template.htm dist
+cp includes/roast-template.htm dist
+cp includes/ranking-template.htm dist
+cp includes/jquery-1.11.1.min.js dist
+cp -R icons dist
+cp -R Wheels dist
+cp README.txt dist
+cp ../LICENSE dist/LICENSE.txt
 
-# build CentOS amd64 .rpm
+mkdir dist/Machines
+find includes/Machines -name '.*.aset' -exec rm -r {} \;
+cp -R includes/Machines/* dist/Machines
 
-sed -i "s/i386/amd64/g" debian/DEBIAN/control
+mkdir dist/Themes
+find includes/Themes -name '.*.athm' -exec rm -r {} \;
+cp -R includes/Themes/* dist/Themes
 
-rm -rf debian/usr/share/artisan
-tar -xf dist-centos64.tar -C debian/usr/share
-mv debian/usr/share/dist debian/usr/share/artisan
-find debian -name .svn -exec rm -rf {} \; > /dev/null 2>&1
-chown -R root:root debian
-chmod -R go-w debian
-chmod 0644 debian/usr/share/artisan/*.so*
-rm ${NAME}_amd64.deb
-fakeroot dpkg --build debian ${NAME}_amd64.deb
-alien -r ${NAME}_amd64.deb
-mv ${RPM_NAME}-2.x86_64.rpm ${NAME}_x86_64.rpm
+mkdir dist/Icons
+find includes/Icons -name '.*.aset' -exec rm -r {} \;
+cp -R includes/Icons/* dist/Icons
 
-# fix debian/DEBIAN/control architecture
-sed -i "s/amd64/i386/g" debian/DEBIAN/control
+cp $PYTHON_PATH/yoctopuce/cdll/* dist
 
-# fix debian/DEBIAN/control _VERSION_
-sed -i "s/${VERSION}/_VERSION_/g" debian/DEBIAN/control
+cp /usr/lib/libsnap7.so dist
+
+cp README.txt dist
+cp ../LICENSE dist/LICENSE.txt
+
+# remove automatically collected libs that might break things on some installations (eg. Ubuntu 16.04)
+# so it is better to rely on the system installed once
+# see https://github.com/gridsync/gridsync/issues/47 and https://github.com/gridsync/gridsync/issues/43
+#   and https://askubuntu.com/questions/575505/glibcxx-3-4-20-not-found-how-to-fix-this-error
+rm -f dist/libdrm.so.2
+rm -f dist/libX11.so.6
+rm -f dist/libstdc++.so.6
+rm -f dist/libgio-2.0.so.0
+rm -f dist/libz.so.1
+
+rm -f libusb-1.0.so.0
+
+tar -cf dist-centos64.tar dist
+

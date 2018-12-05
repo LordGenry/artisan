@@ -27,7 +27,8 @@ INCLUDES = [
 #            "urlparse",
             ]
 
-EXCLUDES = ['_tkagg',
+EXCLUDES = ['six.moves.urllib.parse',
+            '_tkagg',
             '_ps',
             '_fltkagg',
             'Tkinter',
@@ -36,6 +37,10 @@ EXCLUDES = ['_tkagg',
             '_gtk',
             'gtkcairo',
             'pydoc',
+            'doctest',
+            'pdb',
+            'pyreadline',
+            'optparse',
             'sqlite3',
             'bsddb',
             'curses',
@@ -44,6 +49,9 @@ EXCLUDES = ['_tkagg',
             '_gtagg',
             '_cocoaagg',
             '_wx',
+            # the following two lines avoid a infinite loop in py2exe 0.9.2.2
+            'six.moves',
+            'six.moves.urllib',
             ]
 
 # current version of Artisan
@@ -108,7 +116,7 @@ setup(
 os.system('mkdir dist')
 os.system('mkdir build')
 os.system('copy README.txt dist')
-os.system('copy LICENSE.txt dist')
+os.system('copy ..\\LICENSE dist\\LICENSE.txt')
 os.system('copy qt-win.conf dist\\qt.conf')
 os.system('mkdir dist\\Wheels')
 os.system('mkdir dist\\Wheels\\Cupping')
@@ -147,6 +155,7 @@ os.system('copy artisanAlarms.ico dist')
 os.system('copy artisanProfile.ico dist')
 os.system('copy artisanPalettes.ico dist')
 os.system('copy artisanSettings.ico dist')
+os.system('copy artisanTheme.ico dist')
 os.system('copy artisanWheel.ico dist')
 os.system('copy includes\\Humor-Sans.ttf dist')
 os.system('copy includes\\alarmclock.eot dist')
@@ -155,7 +164,15 @@ os.system('copy includes\\alarmclock.ttf dist')
 os.system('copy includes\\alarmclock.woff dist')
 os.system('copy includes\\artisan.tpl dist')
 os.system('copy includes\\bigtext.js dist')
+os.system('copy includes\\sorttable.js dist')
+os.system('copy includes\\report-template.htm dist')
+os.system('copy includes\\roast-template.htm dist')
+os.system('copy includes\\ranking-template.htm dist')
 os.system('copy includes\\jquery-1.11.1.min.js dist')
+os.system(r'mkdir dist\\Machines')
+os.system(r'xcopy includes\\Machines dist\\Machines /y /S')
+os.system(r'mkdir dist\\Themes')
+os.system(r'xcopy includes\\Themes dist\\Themes /y /S')
 os.system('copy ..\\Redistribution2010\\vcredist_x86.exe dist')
 
 

@@ -34,6 +34,12 @@ xdg-icon-resource uninstall --size 64  application-x-artisan-aset
 xdg-icon-resource uninstall --size 128 application-x-artisan-aset
 xdg-icon-resource uninstall --size 256 application-x-artisan-aset
 xdg-mime uninstall /usr/share/artisan/artisan-aset.xml
+xdg-icon-resource uninstall --size 16  application-x-artisan-athm
+xdg-icon-resource uninstall --size 32  application-x-artisan-athm
+xdg-icon-resource uninstall --size 64  application-x-artisan-athm
+xdg-icon-resource uninstall --size 128 application-x-artisan-athm
+xdg-icon-resource uninstall --size 256 application-x-artisan-athm
+xdg-mime uninstall /usr/share/artisan/artisan-athm.xml
 xdg-icon-resource uninstall --size 16  application-x-artisan-wg
 xdg-icon-resource uninstall --size 32  application-x-artisan-wg
 xdg-icon-resource uninstall --size 64  application-x-artisan-wg
@@ -44,7 +50,13 @@ xdg-mime uninstall /usr/share/artisan/artisan-wg.xml
 
 case "$1" in
    remove|upgrade)
-   if dpkg-query -W xdg-utils; 
+   if dpkg-query -W xdg-utils 2>&1 >/dev/null; 
+       then clear_mime;
+   fi
+   ;;
+
+   0|2)
+   if rpm -q xdg-utils;
        then clear_mime;
    fi
    ;;

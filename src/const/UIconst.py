@@ -64,9 +64,17 @@ FILE_MENU_IMPORT = QApplication.translate("Menu", "Import", None)
 FILE_MENU_SAVE = QApplication.translate("Menu", "Save", None)
 FILE_MENU_SAVEAS = QApplication.translate("Menu", "Save As...", None)
 FILE_MENU_EXPORT = QApplication.translate("Menu", "Export", None)
+FILE_MENU_CONVERT = QApplication.translate("Menu", "Convert To", None)
 FILE_MENU_SAVEGRAPH = QApplication.translate("Menu", "Save Graph", None)
 FILE_MENU_SAVEGRAPH_FULL_SIZE = QApplication.translate("Menu", "Full Size...", None)
-FILE_MENU_HTMLREPORT = QApplication.translate("Menu", "Roasting Report", None)
+FILE_MENU_SAVEGRAPH_Large = QApplication.translate("Menu", "Large (1200x?)...", None)
+FILE_MENU_REPORT = QApplication.translate("Menu", "Report", None)
+FILE_MENU_HTMLREPORT = QApplication.translate("Menu", "Roast", None)
+FILE_MENU_PRODUCTIONREPORT = QApplication.translate("Menu", "Batches", None)
+FILE_MENU_RANKINGREPORT = QApplication.translate("Menu", "Ranking", None)
+FILE_MENU_REPORT_WEB = QApplication.translate("Menu", "Web...", None)
+FILE_MENU_REPORT_CSV = QApplication.translate("Menu", "CSV...", None)
+FILE_MENU_REPORT_EXCEL = QApplication.translate("Menu", "Excel...", None)
 FILE_MENU_PRINT = QApplication.translate("Menu", "Print...", None)
 if platf == 'Darwin':
     FILE_MENU_QUIT = "Quit"
@@ -88,32 +96,38 @@ if platf != 'Darwin':
 ROAST_MENU_PROPERTIES = QApplication.translate("Menu", "Properties...", None)
 ROAST_MENU_BACKGROUND = QApplication.translate("Menu", "Background...", None)
 ROAST_MENU_CUPPROFILE = QApplication.translate("Menu", "Cup Profile...", None)
-ROAST_MENU_TEMPERATURE = QApplication.translate("Menu", "Temperature", None)
 ROAST_MENU_CONVERT_TO_FAHRENHEIT = QApplication.translate("Menu", "Convert to Fahrenheit", None)
 ROAST_MENU_CONVERT_TO_CELSIUS = QApplication.translate("Menu", "Convert to Celsius", None)
 ROAST_MENU_FAHRENHEIT_MODE = QApplication.translate("Menu", "Fahrenheit Mode", None)
 ROAST_MENU_CELSIUS_MODE = QApplication.translate("Menu", "Celsius Mode", None)
 ROAST_MENU_SWITCH = QApplication.translate("Menu", "Switch Profiles", None)
+ROAST_MENU_SWITCH_ETBT = QApplication.translate("Menu", "Switch ET<->BT", None)
 
 #Conf menu items
 CONF_MENU = QApplication.translate("Menu", "Config", None)
 if platf != 'Darwin':
     CONF_MENU = "&" + CONF_MENU
+CONF_MENU_MACHINE = QApplication.translate("Menu", "Machine", None)
+CONF_MENU_THEMES = QApplication.translate("Menu", "Themes", None)
 CONF_MENU_DEVICE = QApplication.translate("Menu", "Device...", None)
-CONF_MENU_SERIALPORT = QApplication.translate("Menu", "Serial Port...", None)
+CONF_MENU_SERIALPORT = QApplication.translate("Menu", "Port...", None)
 CONF_MENU_SAMPLING = QApplication.translate("Menu", "Sampling Interval...", None)
 CONF_MENU_OVERSAMPLING = QApplication.translate("Menu", "Oversampling", None)
 CONF_MENU_OVERSAMPLING = QApplication.translate("Menu", "Oversampling", None)
 CONF_MENU_COLORS = QApplication.translate("Menu", "Colors...", None)
+CONF_MENU_CONTROLS = QApplication.translate("Menu", "Controls", None)
+CONF_MENU_READINGS = QApplication.translate("Menu", "Readings", None)
 CONF_MENU_BUTTONS = QApplication.translate("Menu", "Buttons", None)
 CONF_MENU_SLIDERS = QApplication.translate("Menu", "Sliders", None)
 CONF_MENU_PHASES = QApplication.translate("Menu", "Phases...", None)
 CONF_MENU_EVENTS = QApplication.translate("Menu", "Events...", None)
+CONF_MENU_CURVES = QApplication.translate("Menu", "Curves...", None)
 CONF_MENU_STATISTICS = QApplication.translate("Menu", "Statistics...", None)
 CONF_MENU_AXES = QApplication.translate("Menu", "Axes...", None)
 CONF_MENU_AUTOSAVE = QApplication.translate("Menu", "Autosave...", None)
 CONF_MENU_BATCH = QApplication.translate("Menu", "Batch...", None)
 CONF_MENU_ALARMS = QApplication.translate("Menu", "Alarms...", None)
+CONF_MENU_TEMPERATURE = QApplication.translate("Menu", "Temperature", None)
 CONF_MENU_LANGUAGE = QApplication.translate("Menu", "Language", None)
 
 #Languages
@@ -133,11 +147,13 @@ CONF_MENU_PORTUGUESE = u("Portugu\xeas") # Do not translate
 CONF_MENU_RUSSIAN = u("\u0440\u0443\u0441\u0441\u043a\u0438\u0439") # Do not translate
 CONF_MENU_ARABIC = u("\u0627\u0644\u0639\u0631\u0628\u064a\u0629") # Do not translate
 CONF_MENU_FINISH = u("Suomalainen") # Do not translate
-CONF_MENU_TURKISH = u("T\xfcrk") # Do not translate
+CONF_MENU_TURKISH = u("T\xfcrk\u00e7e") # Do not translate
 CONF_MENU_JAPANESE = u("\u65e5\u672c\u8a9e") # Do not translate
 CONF_MENU_HUNGARIAN = u("Hungarian") # Do not translate
 CONF_MENU_HEBREW = u("\u05e2\u05d1\u05e8\u05d9\u05ea") # Do not translate
 CONF_MENU_POLISH = u("Polski") # Do not translate
+CONF_MENU_INDONESIAN = u("Indonesia") # Do not translate
+CONF_MENU_THAI = u("Thai") # Do not translate
 
 #Toolkit menu
 TOOLKIT_MENU = QApplication.translate("Menu", "Tools", None)
@@ -147,21 +163,28 @@ TOOLKIT_MENU_DESIGNER = QApplication.translate("Menu", "Designer", None)
 TOOLKIT_MENU_CALCULATOR = QApplication.translate("Menu", "Calculator", None)
 TOOLKIT_MENU_WHEELGRAPH = QApplication.translate("Menu", "Wheel Graph", None)
 TOOLKIT_MENU_LCDS = QApplication.translate("Menu", "LCDs", None)
-TOOLKIT_MENU_EXTRAS = QApplication.translate("Menu", "Extras...", None)
 
 
 #Settings menu
 SETTINGS_MENU_LOAD = QApplication.translate("Menu", "Load Settings...", None)    
 SETTINGS_MENU_LOADRECENT = QApplication.translate("Menu", "Load Recent Settings", None)
 SETTINGS_MENU_SAVEAS = QApplication.translate("Menu", "Save Settings...", None)
+SETTINGS_MENU_SAVETHEME = QApplication.translate("Menu", "Save Theme...", None)
 
-    
+
+#View menu items
+VIEW_MENU = QApplication.translate("Menu", "View", None)
+if platf != 'Darwin':
+    VIEW_MENU = "&" + VIEW_MENU
+VIEW_MENU_FULLSCREEN = QApplication.translate("Menu", "Full Screen", None) # "Enter Full Screen"
+
 #Help menu items
 HELP_MENU = QApplication.translate("Menu", "Help", None)
 if platf != 'Darwin':
     HELP_MENU = "&" + HELP_MENU
 ##note that the "About" menu item is recognized only if it is named "About" on the Mac, but automatically translated by the Qt standard tranlators
 HELP_MENU_ABOUT = QApplication.translate("MAC_APPLICATION_MENU", "About {0}", None).format("Artisan") 
+HELP_MENU_ABOUT_ARTISANVIEWER = QApplication.translate("MAC_APPLICATION_MENU", "About {0}", None).format("ArtisanViewer") 
 HELP_MENU_ABOUTQT = QApplication.translate("Menu", "About Qt", None)
 HELP_MENU_DOCUMENTATION = QApplication.translate("Menu", "Documentation", None)
 #HELP_MENU_BLOG = QApplication.translate("Menu", "Blog", None)

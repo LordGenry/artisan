@@ -12,14 +12,14 @@ from distutils import sysconfig
 their_parse_makefile = sysconfig.parse_makefile
 def my_parse_makefile(filename, g):
     their_parse_makefile(filename, g)
-    g['MACOSX_DEPLOYMENT_TARGET'] = '10.7'
+    g['MACOSX_DEPLOYMENT_TARGET'] = '10.10'
 sysconfig.parse_makefile = my_parse_makefile
 
 import sys, os
 from setuptools import setup
 
 import string
-from plistlib import Plist
+import plistlib
 
 import artisanlib
 
@@ -30,13 +30,14 @@ LICENSE = 'GNU General Public License (GPL)'
 try:
     QTDIR = os.environ["QT_PATH"] + r'/'
 except:
-    QTDIR = r'/Users/luther/Qt5.4.2/5.4/clang_64/' # qt5
-    #QTDIR = r'/Developer/Applications/Qt/' # qt4
+    from os.path import expanduser
+    HOME = expanduser("~")
+    QTDIR = HOME + r'/Qt5.9.3/5.9.3/clang_64/'
 
 APP = ['artisan.py']
 
 DATA_FILES = [
-    "LICENSE.txt",
+    ("./LICENSE.txt", [r"../LICENSE"]),
 # standard QT translation needed to get the Application menu bar and 
 # the standard dialog elements translated    
     ("../translations", [QTDIR + r'/translations/qt_ar.qm']),
@@ -75,52 +76,65 @@ DATA_FILES = [
     ("../translations", [r"translations/artisan_no.qm"]),
     ("../translations", [r"translations/artisan_nl.qm"]),
     ("../translations", [r"translations/artisan_tr.qm"]),
+    ("../translations", [r"translations/artisan_th.qm"]),
+    ("../translations", [r"translations/artisan_id.qm"]),
     ("../Resources", [r"qt.conf"]),
     ("../Resources", [r"artisanProfile.icns"]),
     ("../Resources", [r"artisanAlarms.icns"]),
     ("../Resources", [r"artisanPalettes.icns"]),
     ("../Resources", [r"artisanSettings.icns"]),
     ("../Resources", [r"artisanWheel.icns"]),
+    ("../Resources", [r"artisanTheme.icns"]),
     ("../Resources", [r"includes/alarmclock.eot"]),
     ("../Resources", [r"includes/alarmclock.svg"]),
     ("../Resources", [r"includes/alarmclock.ttf"]),
     ("../Resources", [r"includes/alarmclock.woff"]),
     ("../Resources", [r"includes/artisan.tpl"]),
     ("../Resources", [r"includes/bigtext.js"]),
+    ("../Resources", [r"includes/sorttable.js"]),
+    ("../Resources", [r"includes/report-template.htm"]),
+    ("../Resources", [r"includes/roast-template.htm"]),
+    ("../Resources", [r"includes/ranking-template.htm"]),
     ("../Resources", [r"includes/Humor-Sans.ttf"]),
     ("../Resources", [r"includes/jquery-1.11.1.min.js"]),
+    ("../Resources", [r"includes/Machines"]),
+    ("../Resources", [r"includes/Themes"]),
   ]
   
-plist = Plist.fromFile('Info.plist')
-plist.update({ 'CFBundleDisplayName': 'Artisan',
-                    'CFBundleGetInfoString': 'Artisan, Roast Logger',
-                    'CFBundleIdentifier': 'com.google.code.p.Artisan',
-                    'CFBundleShortVersionString': VERSION,
-                    'CFBundleVersion': 'Artisan ' + VERSION,
-                    'LSMinimumSystemVersion': '10.7',
-                    'LSMultipleInstancesProhibited': 'false',
-                    'LSPrefersPPC': False,
-                    'LSArchitecturePriority': 'x86_64',
-                    'NSHumanReadableCopyright': LICENSE,
-                })
-                
+with open('Info.plist', 'r+b') as fp:
+    plist = plistlib.load(fp)
+    plist['CFBundleDisplayName'] = 'Artisan'
+    plist['CFBundleGetInfoString'] = 'Artisan, Roast Logger'
+    plist['CFBundleIdentifier'] = 'com.google.code.p.Artisan'
+    plist['CFBundleShortVersionString'] = VERSION
+    plist['CFBundleVersion'] = 'Artisan ' + VERSION
+    plist['LSMinimumSystemVersion'] = '10.13'
+    plist['LSMultipleInstancesProhibited'] = 'false'
+    plist['LSPrefersPPC'] = False,
+    plist['LSArchitecturePriority'] = 'x86_64',
+    plist['NSHumanReadableCopyright'] = LICENSE
+    plist['NSHighResolutionCapable'] = True
+    fp.seek(0, os.SEEK_SET)
+    fp.truncate()
+    plistlib.dump(plist, fp)
+
 OPTIONS = {
     'strip':True,
     'argv_emulation': False, # this would confuses GUI processing
     'qt_plugins': [
                     'iconengines/libqsvgicon.dylib',
-                    'imageformats/libqsvg.dylib',
+#                    'imageformats/libqdds.dylib', # not on Qt5.8.x
+                    'imageformats/libqgif.dylib',
+                    'imageformats/libqicns.dylib',                  
+                    'imageformats/libqico.dylib',
+#                    'imageformats/libqjp2.dylib', # not on Qt5.6.x
                     'imageformats/libqjpeg.dylib',
-                    'imageformats/libqtiff.dylib',
-                    'imageformats/libqdds.dylib',
-#                    'imageformats/libqgif.dylib',
-#                    'imageformats/libqicns.dylib',                   
-#                    'imageformats/libqico.dylib',
-#                    'imageformats/libqjp2.dylib',
-#                    'imageformats/libqmng.dylib',
-#                    'imageformats/libqtga.dylib',
-#                    'imageformats/libqwbmp.dylib',
-#                    'imageformats/libqwebp.dylib',
+#                    'imageformats/libqmng.dylib', # not on Qt5.6.x
+                    'imageformats/libqsvg.dylib', 
+                    'imageformats/libqtga.dylib',
+#                    'imageformats/libqtiff.dylib', # produces a strip error
+                    'imageformats/libqwbmp.dylib',
+                    'imageformats/libqwebp.dylib',
                     'platforms/libqcocoa.dylib',  # qt5
 #                    'platforms/libqminimal.dylib',  # qt5
 #                    'platforms/libqoffscreen.dylib' # qt5
@@ -137,13 +151,16 @@ OPTIONS = {
     'compressed': True,
     'iconfile': 'artisan.icns',
     'arch': 'x86_64',
-    'matplotlib_backends': '-', # '-' for imported or explicit 'qt4agg'
+    'matplotlib_backends': '-', # '-' for imported or explicit 'qt5agg'
     'includes': ['serial',
-                 'PyQt4',
-                 'PyQt4.QtCore',
-                 'PyQt4.QtGui',
-                 'PyQt4.QtSvg',
-                 'PyQt4.QtXml'],
+                 'PyQt5',
+                 'PyQt5.QtCore',
+                 'PyQt5.QtGui',
+                 'PyQt5.QtWidgets',
+                 'PyQt5.QtSvg',
+                 'PyQt5.QtXml',
+                 'PyQt5.QtDBus',
+                 'PyQt5.QtPrintSupport'],
     'excludes' :  ['_tkagg','_ps','_fltkagg','Tkinter','Tkconstants',
                       '_agg','_cairo','_gtk','gtkcairo','pydoc','sqlite3',
                       'bsddb','curses','tcl',
@@ -164,7 +181,7 @@ setup(
 
             
 os.system(r'cp README.txt dist')
-os.system(r'cp LICENSE.txt dist')
+os.system(r'cp ../LICENSE dist/LICENSE.txt')
 os.system(r'mkdir dist/Wheels')
 os.system(r'mkdir dist/Wheels/Cupping')
 os.system(r'mkdir dist/Wheels/Other')
@@ -215,15 +232,23 @@ for fw in [
             'QtDesigner.framework',
             'QtTest.framework',
             'QtWebKit.framework',
-            'QtWebKitWidgets.framework',
             'QtXMLPatterns.framework',
             'QtCLucene.framework',
-            'QtPositioning.framework',
-            'QtQml.framework',
-            'QtSensors.framework',
-            'QtWebChannel.framework',
-            'QtQuick.framework',
+            'QtBluetooth.framework',
+            'QtConcurrent.framework',
             'QtMultimediaWidgets.framework',
+            'QtPositioning.framework',            
+            'QtQml.framework',
+            'QtQuick.framework',
+            'QtQuickWidgets.framework',
+            'QtSensors.framework',
+            'QtSerialPort.framework',            
+            'QtWebChannel.framework',
+            'QtWebEngine.framework',
+            'QtWebEngineCore.framework',
+            'QtWebEngineWidgets.framework',
+            'QtWebKitWidgets.framework',
+            'QtWebSockets.framework',
             'QtCore.framework/Versions/4',
             'QtCore.framework/Versions/4.0',
             'QtGui.framework/Versions/4',
@@ -232,7 +257,7 @@ for fw in [
             'QtWidgets.framework/Versions/4.0']:
     for root,dirs,files in os.walk('./Artisan.app/Contents/Frameworks/' + fw):
         for file in files:
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
             
 #os.remove('./Artisan.app/Contents/Frameworks/libwx_osx_cocoau-3.0.0.0.0.dylib')
@@ -242,31 +267,31 @@ print '*** Removing unused files ***'
 for root, dirs, files in os.walk('.'):
     for file in files:
         if 'debug' in file:
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         elif file.startswith('test_'):
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         elif '_tests' in file:
-            print 'Deleting', file            
+#            print 'Deleting', file            
             os.remove(os.path.join(root,file)) 
         # .pyo contains optimizations (from Python v3.5 on .pyc files also contain optimizations)
         # so it is better to delete .pyo files and keep .pyc files from Python 3.5 on!           
         elif file.endswith('.pyc') and file != "site.pyc" and os.path.isfile(os.path.join(root,file[:-3] + 'pyo')):
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         # remove also all .h .in .cpp .cc .html files 
         elif file.endswith('.h') and file != "pyconfig.h":
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         elif file.endswith('.in'):
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         elif file.endswith('.cpp'):
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
         elif file.endswith('.cc'):
-            print 'Deleting', file
+#            print 'Deleting', file
             os.remove(os.path.join(root,file))
 # .afm files should not be removed as without matplotlib will fail on startup                        
 #        elif file.endswith('.afm'):
@@ -277,7 +302,7 @@ for root, dirs, files in os.walk('.'):
         if 'tests' in dir:
             for r,d,f in os.walk(os.path.join(root,dir)):
                 for fl in f:
-                    print 'Deleting', os.path.join(r,fl)
+#                    print 'Deleting', os.path.join(r,fl)
                     os.remove(os.path.join(r,fl))      
             
 os.chdir('..')

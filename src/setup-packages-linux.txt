@@ -1,31 +1,77 @@
 Current Versions:
 
 o Python 2.7.10
-o pyserial 2.7
+o pyserial 3.2.1
 o QT 5.4.2
 o SIP 4.16.8
-o PyQt 4.11.4
-o numpy 1.9.2
-o scipy 0.15.1
-o matplotlib 1.4.3
+o PyQt 5.8.0
+o numpy 1.12.1
+o scipy 0.19.0
+o matplotlib 2.0.3
 (o MinimalModbus 0.5)
 o pyemf 2.0.0
 ( o cx_freeze (tip from 2013-03-26) )
-o patchelf
+o patchelf v0.9
 o bbfreeze 1.1.3
 o pymodbus 1.3.0
-o yoctopuce 1.10.20384
+o yoctopuce 1.10.25534
 o requests 2.7.0
-o gevent-1.0.2
+o gevent 1.2.2
 o bottle 0.12.7
 o gevent-websocket-0.9.5
 o python-qrcode 5.1
 o pip 7.1.0
 o Phidgets 2.1.8 7/2013
+o openpyxl 2.3.3
+o unidecode 0.4.19
+o altgraph 0.9 (don't upgrade as it will break bbfreeze!!)
+o setuptools 36.0.1
+
+CHECK FOR UPDATES
+# pip install pip-review
+# pip-review --local --interactive
 
 
 Upgrade History:
 
+- 2017-06-05:
+ . Python 2.7.10 => 2.7.13
+ . PyQt 4.11.4 => 5.8.0
+ . gevent-1.2.0 => 1.2.2
+ . gevent-websocket 0.9.5 => 0.10.1
+ . numpy 1.11.2 => 1.12.1
+ . scipy 0.15.1 => 0.19.0
+ . matplotlib 1.5.3 => 2.0.2
+ . pyserial 3.2.1 => 3.3
+ . pytz 2016.10 => 2017.2
+ . requests 2.7.0 => 2.17.3
+ . setuptools 34.2.0 => 36.0.1
+ . yoctopuce 1.10.25534 => 1.10.27439
+- 2016-10-15
+ . yoctopuce 1.10.22936 => 1.10.25534
+ . pyserial 2.7 => 3.2.1
+ . unidecode 0.4.19
+ . modulegraph 0.15
+- 2016-10-12
+ . patchelf => 0.9
+ . matplotlib => 1.5.3
+ . scipy 0.15.1 => 0.18.1
+ . numpy 1.9.2 => 1.11.2
+- 2016-09-18
+ . gevent 1.1.0 => 1.2.0
+- 2016-03-07
+ . openpyxl 2.3.3
+- 2016-02-26
+ . python 2.7.10 => 2.7.11
+ . numpy 1.9.2 => 1.10.4
+ . scipy 0.15.1 => 0.17.0
+ . matplotlib 1.4.3 => 1.5.1
+ . yoctopuce 1.10.20384 => 1.10.22936
+ . pymodus 1.3.0-trunk-patched
+ . requests 2.9.1
+ . qrcode 5.2.2
+ . altgraph => 0.12
+ . cxfreeze => 4.3.4
 - 2015-07-18
  . Python 2.7.9 => 2.7.10
  . QT 4.8.6 => 5.4.2
@@ -246,6 +292,10 @@ on Ubuntu with  the system Python 2.7.3:
 # python2.7 setup.py build
 # sudo python2.7 setup.py install
 
+or pip install
+
+# sudo -H /usr/local/bin/python2.7 -m pip install numpy --no-binary :all:
+NOTE: the no-binary is important to avoid issues on building (Bad Value: Not enough room for program headers, try linking with -N) with patchelf
 
 7) scipy
 (depends on blas, lapack and gfortran)
@@ -254,11 +304,22 @@ on Ubuntu with  the system Python 2.7.3:
 # sudo python2.7 setup.py install
 
 
+or pip install
+
+# sudo -H /usr/local/bin/python2.7 -m pip install scipy --no-binary :all:
+NOTE: the no-binary is important to avoid issues on building (Bad Value: Not enough room for program headers, try linking with -N) with patchelf
+
+
 8) matplotlib
 (depends on libpng)
 
 # python2.7 setup.py build
 # sudo python2.7 setup.py install
+
+or pip install
+
+# sudo -H /usr/local/bin/python2.7 -m pip install matplotlib==1.5.3 --no-binary :all:
+NOTE: the no-binary is important to avoid issues on building (Bad Value: Not enough room for program headers, try linking with -N) with patchelf
 
 
 to minimize binary builds remove test and sample data
@@ -283,6 +344,7 @@ NOTE: replace site-packages by dist-packages if using the default Ubuntu python 
 
 11) patchelf
 
+# sudo ./bootstrap.sh
 # ./configure
 # make
 # sudo make install
@@ -344,6 +406,11 @@ copy shared libs
 # sudo mkdir /usr/local/lib/python2.7/site-packages/yoctopuce/cdll
 # sudo cp yoctopuce/cdll/* /usr/local/lib/python2.7/site-packages/yoctopuce/cdll
 
+alt:
+
+# sudo -H /usr/local/bin/pip install yoctopuce --upgrade
+
+
 16) requests 2.3.0
 
 https://github.com/kennethreitz/requests/releases
@@ -382,6 +449,11 @@ https://github.com/lincolnloop/python-qrcode
 21) pip
 
 # sudo yum install python-pip
+
+
+22) unidecode
+
+# sudo -H python -m pip install unidecode --upgrade
 
 ====
 

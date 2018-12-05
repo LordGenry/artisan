@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Version=0.6
+Version=1.1
 Type=Application
 Name=Artisan
 GenericName=Visual Scope for Coffee Roasters
@@ -10,5 +10,5 @@ TryExec=artisan
 Icon=artisan.png
 Terminal=false
 Categories=Utility;
-MimeType=application/x-artisan-alog;application/x-artisan-alrm;application/x-artisan-apal;application/x-artisan-aset;application/x-artisan-wg;
+MimeType=application/x-artisan-alog;application/x-artisan-alrm;application/x-artisan-apal;application/x-artisan-aset;application/x-artisan-wg;application/x-artisan-athm;
 

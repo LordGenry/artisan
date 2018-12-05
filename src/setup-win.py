@@ -9,7 +9,23 @@ from distutils.core import setup
 import matplotlib as mpl
 import py2exe
 
+import numpy
 import os
+import sys
+
+# add any numpy directory containing a dll file to sys.path
+def numpy_dll_paths_fix():
+    paths = set()
+    np_path = numpy.__path__[0]
+    for dirpath, _, filenames in os.walk(np_path):
+        for item in filenames:
+            if item.endswith('.dll'):
+                paths.add(dirpath)
+    if paths:
+        sys.path.append(*list(paths))
+
+numpy_dll_paths_fix()
+
 
 # Remove the build folder, a bit slower but ensures that build contains the latest
 import shutil
@@ -26,7 +42,8 @@ INCLUDES = [
             "scipy.interpolate",
             ]
 
-EXCLUDES = ['_tkagg',
+EXCLUDES = ['gevent._socket3',
+            '_tkagg',
             '_ps',
             '_fltkagg',
             'Tkinter',
@@ -35,6 +52,10 @@ EXCLUDES = ['_tkagg',
             '_gtk',
             'gtkcairo',
             'pydoc',
+            'doctest',
+            'pdb',
+            'pyreadline',
+            'optparse',
             'sqlite3',
             'bsddb',
             'curses',
@@ -95,6 +116,7 @@ setup(
 
 os.system(r'copy README.txt dist')
 os.system(r'copy LICENSE.txt dist')
+os.system(r'copy ..\\LICENSE dist\\LICENSE.txt')
 os.system(r'copy qt-win.conf dist\\qt.conf')
 os.system(r'mkdir dist\\Wheels')
 os.system(r'mkdir dist\\Wheels\\Cupping')
@@ -131,6 +153,7 @@ os.system(r'copy artisanAlarms.ico dist')
 os.system(r'copy artisanProfile.ico dist')
 os.system(r'copy artisanPalettes.ico dist')
 os.system(r'copy artisanSettings.ico dist')
+os.system(r'copy artisanTheme.ico dist')
 os.system(r'copy artisanWheel.ico dist')
 os.system(r'copy includes\\Humor-Sans.ttf dist')
 os.system(r'copy includes\\alarmclock.eot dist')
@@ -139,5 +162,13 @@ os.system(r'copy includes\\alarmclock.ttf dist')
 os.system(r'copy includes\\alarmclock.woff dist')
 os.system(r'copy includes\\artisan.tpl dist')
 os.system(r'copy includes\\bigtext.js dist')
+os.system(r'copy includes\\sorttable.js dist')
+os.system(r'copy includes\\report-template.htm dist')
+os.system(r'copy includes\\roast-template.htm dist')
+os.system(r'copy includes\\ranking-template.htm dist')
 os.system(r'copy includes\\jquery-1.11.1.min.js dist')
+os.system(r'mkdir dist\\Machines')
+os.system(r'xcopy includes\\Machines dist\\Machines /y /S')
+os.system(r'mkdir dist\\Themes')
+os.system(r'xcopy includes\\Themes dist\\Themes /y /S')
 os.system(r'copy ..\\vcredist_x86.exe dist')
